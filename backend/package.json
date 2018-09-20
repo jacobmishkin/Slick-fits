@@ -10,6 +10,7 @@
     "dev": "npm-run-all --parallel debug playground"
   },
   "dependencies": {
+    "ajv": "^6.5.3",
     "babel-preset-env": "^1.7.0",
     "bcryptjs": "2.4.3",
     "cookie-parser": "^1.4.3",
@@ -25,6 +26,9 @@
     "stripe": "^6.1.1"
   },
   "devDependencies": {
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
     "graphql-cli": "^2.16.2",
     "jest-cli": "^23.1.0"
   },
