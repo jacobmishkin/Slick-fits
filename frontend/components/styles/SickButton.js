@@ -11,6 +11,7 @@ const SickButton = styled.button`
   padding: 0.8rem 1.5rem;
   transform: skew(-2deg);
   display: inline-block;
+  cursor: pointer;
   transition: all 0.5s;
   &[disabled] {
     opacity: 0.5;
