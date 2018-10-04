@@ -14,7 +14,6 @@ const SIGNIN_MUTATION = gql`
     }
   }
 `;
-
 class Signin extends Component {
   state = {
     password: '',
