@@ -49,8 +49,8 @@ const Mutations = {
     // 1. find the item
     const item = await ctx.db.query.item({ where }, '{ id title user { id }}');
     // 2. check to see if a user is logged in
-    const { userId } = ctx.request;
-    if (!userId) {
+    const user = ctx.request.userId;
+    if (!user) {
       throw new Error('You do not have permission to do this!!!');
     }
     // 3. Check if they own that item, or have the permissions
@@ -135,7 +135,7 @@ const Mutations = {
       html: makeANiceEmail(`Your Password Reset Token is here!
       \n\n
       <a href="${process.env
-    .FRONTEND_URL}/reset?resetToken=${resetToken}">Click Here to Reset</a>`),
+          .FRONTEND_URL}/reset?resetToken=${resetToken}">Click Here to Reset</a>`),
     });
 
     // 4. Return the message
@@ -213,36 +213,40 @@ const Mutations = {
     // 1. Make sure they are signed in
     const { userId } = ctx.request;
     if (!userId) {
-      throw new Error('You Must be Signed in');
+      throw new Error('You must be signed in soooon');
     }
-    // 2. Query the Users current cart
-    const [existingCartItem] = await ctx.db.query.cartItems(
-      {
-        where: {
-          user: { id: userId },
-          item: { id: args.id },
-        },
+    // 2. Query the users current cart
+    const [existingCartItem] = await ctx.db.query.cartItems({
+      where: {
+        user: { id: userId },
+        item: { id: args.id },
       },
-    );
-    // 3. Check if that item is already in their cart increment by 1 if it is
+    });
+    // 3. Check if that item is already in their cart and increment by 1 if it is
     if (existingCartItem) {
-      console.log('this item is already in the cart');
-      return ctx.db.mutation.updateCartItem({
-        where: { id: existingCartItem.id },
-        data: { quantity: existingCartItem.quantity + 1 },
-      }, info);
-    }
-    // 4. if not create a fresh cart for that user
-    return ctx.db.mutation.createCartItem({
-      data: {
-        user: {
-          connect: { id: userId },
+      console.log('This item is already in their cart');
+      return ctx.db.mutation.updateCartItem(
+        {
+          where: { id: existingCartItem.id },
+          data: { quantity: existingCartItem.quantity + 1 },
         },
-        item: {
-          connect: { id: args.id },
+        info,
+      );
+    }
+    // 4. If its not, create a fresh CartItem for that user!
+    return ctx.db.mutation.createCartItem(
+      {
+        data: {
+          user: {
+            connect: { id: userId },
+          },
+          item: {
+            connect: { id: args.id },
+          },
         },
       },
-    }, info);
+      info,
+    );
   },
 };
 
