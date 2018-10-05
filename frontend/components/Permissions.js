@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import React, { Component } from 'react';
 import { Query, Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
@@ -67,12 +67,12 @@ const Permissions = props => (
   </Query>
 );
 
-class UserPermissions extends React.Component {
+class UserPermissions extends Component {
   static propTypes = {
     user: PropTypes.shape({
       name: PropTypes.string,
-      email: PropTypes.String,
-      id: PropTypes.String,
+      email: PropTypes.string,
+      id: PropTypes.string,
       permission: PropTypes.array,
     }).isRequired,
   };
