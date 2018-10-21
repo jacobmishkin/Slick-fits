@@ -2,8 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
+const stripe = require('../stripe');
 const { transport, makeANiceEmail } = require('../mail');
 const { hasPermission } = require('../utils');
+
 
 const Mutations = {
   async createItem(parent, args, ctx, info) {
@@ -134,8 +136,7 @@ const Mutations = {
       subject: 'Your Password Reset Token',
       html: makeANiceEmail(`Your Password Reset Token is here!
       \n\n
-      <a href="${process.env
-          .FRONTEND_URL}/reset?resetToken=${resetToken}">Click Here to Reset</a>`),
+      <a href="${process.env.FRONTEND_URL}/reset?resetToken=${resetToken}">Click Here to Reset</a>`),
     });
 
     // 4. Return the message
@@ -271,6 +272,26 @@ const Mutations = {
       },
       info,
     );
+  },
+  async createOrder(parent, args, ctx, info) {
+    // 1. Query the current user and make sure they are signed in
+    const { userId } = ctx.request;
+    if (!userId) throw Error('you must be signed in to complete the order.');
+    const user = await ctx.db.query.user({ where: { id: userId } },
+      '{id name email cart {id quantity item {title price id description image}}}');
+    // 2. recalculate the total for the price
+    const amount = user.cart.reduce((tally, cartItem) => tally + cartItem.item.price * cartItem.quantity, 0);
+    console.log(`going to charge for a total of ${amount}`);
+    // 3. create a stripe charge
+    const charge = await stripe.charges.create({
+      amount,
+      currency: 'USD',
+      source: args.token,
+    });
+    // 4. convert the CartItems to OrderItems
+    // 5. Create the Order
+    // 6. Clean up - clean the users cart, delete cartItems
+    // 7. Return the Order to the Client
   },
 };
 
